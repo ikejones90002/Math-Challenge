@@ -137,7 +137,9 @@
     }
 
     function launchConfetti() {
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.4 } });
+      if (typeof confetti === "function") {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.4 } });
+      }
     }
 
     function endGame(msg) {
