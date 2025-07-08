@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+
+</style>
+<body>
+   <input type="text" id="userInput" placeholder="Type something...Your answer"> 
+   <div id="disableInputs">
+    <input disabled type="text" id="input1" class="disabled" placeholder="#1">
+    <div id="operator"></div>
+    <input disabled type="text" id="input2" class="disabled" placeholder="#2">
+   </div>
+   <button id="check">Check Answers</button>
+   <span id="countDown">Timer: 30</span>
+   <span id="score">Score</span>
+
+   <script>
+    const checkAnswerButton = document.getElementById('check');
+    const userInput = document.getElementById('userInput');
+    const input1 = document.getElementById('input1');
+    const input2 = document.getElementById('input2');
+    const operator = document.getElementById('operator');
+    const checkButton = document.getElementById('check');
+    let count_down = 10000; //this will be in milliseconds
+    let count_down_element = document.getElementById('countDown');
+    count_down_element.innerHTML = count_down / 1000; // Convert milliseconds to seconds
+    const scoreDisplay = document.getElementById('score');
+    let user_score = 0;
+    let inputted = false;
+
+    function randomNum () {
+        return Math.ceil(Math.random() * 50);
+    }
+    function randomOperator() {
+        let operators = ['+', '-', '*', '/'];
+        let randOp = operators[Math.floor(Math.random() * operators.length)];
+        return randOp;
+    }
+    randomOperator();
+    randomNum();
+    function display () {
+        let num1 = randomNum();
+        let num2 = randomNum();
+        let op = randomOperator();
+        operator.innerHTML = op;
+        input1.value = num1;
+        input2.value = num2;
+
+        // Ensure division is integer and no division by zero
+        if (op === '/' && (num2 === 0 || num1 % num2 !== 0)) {
+            return display();
+        }
+        // Ensure subtraction is not negative
+        if (op === '-' && num1 < num2) {
+            [num1, num2] = [num2, num1];
+            input1.value = num1;
+            input2.value = num2;
+        }
+        // Ensure result is within range
+        let finalAnswer = eval(num1 + op + num2);
+        if (finalAnswer > 200 || finalAnswer < 0) {
+            return display();
+        }
+    }
+
+    function validate () { 
+        let op = operator.innerHTML;
+        let correct_answer = eval(`${input1.value}${op}${input2.value}`);
+        let user_value = parseFloat(userInput.value);
+
+        if (userInput.value === '') {
+            alert("Please enter a value!");
+            return;
+        }
+        if (user_value === correct_answer) {
+            display();
+            user_score++;
+            scoreDisplay.innerHTML = `Score:<br> ${user_score}`;
+        } else {
+            alert(`Incorrect answer. The correct answer is: ${correct_answer}`);
+            display();
+            user_score--;
+            scoreDisplay.innerHTML = `Score:<br> ${user_score}`;
+            if (user_score < 0) {
+                alert("Your score cannot be negative, game over!");
+                location.reload();
+            }
+        }
+        userInput.value = '';
+    }
+
+    function runInterval() {
+        const timerInterval = setInterval(() => {
+            count_down -= 1000;
+            count_down_element.innerHTML = count_down / 1000;
+
+            if (count_down <= 0) {
+                clearInterval(timerInterval);
+                alert(`Time's up! Your score is: ${user_score}`);
+                location.reload();
+            }
+        }, 1000);
+    }
+
+    checkAnswerButton.addEventListener('click', () => {
+        if (!inputted) {
+            runInterval();
+            inputted = true;
+        }
+        validate();
+    });
+
+    // Initialize first question
+    display();
+   </script>
+</body>
+</html>
